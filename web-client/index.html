@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Appointment Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+    <div>
+      <h1>Medical Appointment Dashboard</h1>
+      <p>Microservices SOA Project - REST, gRPC, GraphQL, Kafka</p>
+    </div>
+    <button onclick="loadAllData()">Refresh Data</button>
+  </header>
+
+  <main class="container">
+    <section class="cards">
+      <div class="card">
+        <h2 id="patientsCount">0</h2>
+        <p>Patients</p>
+      </div>
+
+      <div class="card">
+        <h2 id="doctorsCount">0</h2>
+        <p>Doctors</p>
+      </div>
+
+      <div class="card">
+        <h2 id="appointmentsCount">0</h2>
+        <p>Appointments</p>
+      </div>
+    </section>
+
+  <section class="forms-grid">
+  <div class="section">
+    <h2>Add Patient</h2>
+
+    <form id="patientForm" class="form-vertical">
+      <input type="text" id="patientName" placeholder="Patient name" required />
+      <input type="email" id="patientEmail" placeholder="Patient email" required />
+      <input type="text" id="patientPhone" placeholder="Patient phone" />
+      <button type="submit">Add Patient</button>
+    </form>
+  </div>
+
+  <div class="section">
+    <h2>Add Doctor</h2>
+
+    <form id="doctorForm" class="form-vertical">
+      <input type="text" id="doctorName" placeholder="Doctor name" required />
+      <input type="text" id="doctorSpecialty" placeholder="Specialty" required />
+      <input type="email" id="doctorEmail" placeholder="Doctor email" required />
+      <input type="text" id="doctorPhone" placeholder="Doctor phone" />
+      <button type="submit">Add Doctor</button>
+    </form>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Create Appointment</h2>
+
+  <form id="appointmentForm" class="form">
+    <input type="number" id="patientId" placeholder="Patient ID" required />
+    <input type="number" id="doctorId" placeholder="Doctor ID" required />
+    <input type="date" id="date" required />
+    <input type="time" id="time" required />
+    <button type="submit">Create Appointment</button>
+  </form>
+
+  <p id="message"></p>
+</section>
+
+    <section class="grid">
+      <div class="section">
+        <h2>Patients</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+            </tr>
+          </thead>
+          <tbody id="patientsTable"></tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>Doctors</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Specialty</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody id="doctorsTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Appointments</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Patient ID</th>
+            <th>Doctor ID</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="appointmentsTable"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
