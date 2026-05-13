@@ -2,7 +2,10 @@ const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
 const db = require("./database");
-
+const {
+  sendAppointmentCreatedEvent,
+  sendAppointmentCancelledEvent,
+} = require("./kafkaProducer");
 const PROTO_PATH = path.join(__dirname, "../protos/appointment.proto");
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
@@ -40,14 +43,20 @@ function CreateAppointment(call, callback) {
       });
     }
 
-    callback(null, {
-      id: this.lastID,
-      patient_id,
-      doctor_id,
-      date,
-      time,
-      status,
-    });
+   const appointment = {
+  id: this.lastID,
+  patient_id,
+  doctor_id,
+  date,
+  time,
+  status,
+};
+
+sendAppointmentCreatedEvent(appointment).catch((error) => {
+  console.error("Error sending Kafka appointment_created event:", error.message);
+});
+
+callback(null, appointment);
   });
 }
 
@@ -115,7 +124,11 @@ function CancelAppointment(call, callback) {
           });
         }
 
-        callback(null, row);
+        sendAppointmentCancelledEvent(row).catch((error) => {
+  console.error("Error sending Kafka appointment_cancelled event:", error.message);
+});
+
+callback(null, row);
       });
     }
   );
