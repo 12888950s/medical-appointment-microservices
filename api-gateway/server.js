@@ -3,7 +3,10 @@ const cors = require("cors");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
-
+const { ApolloServer } = require("@apollo/server");
+const { expressMiddleware } = require("@as-integrations/express4");
+const typeDefs = require("./graphql/schema");
+const createResolvers = require("./graphql/resolvers");
 const app = express();
 
 app.use(cors());
@@ -50,6 +53,31 @@ const appointmentClient = new appointmentProto.AppointmentService(
   "localhost:50053",
   grpc.credentials.createInsecure()
 );
+const resolvers = createResolvers(
+  patientClient,
+  doctorClient,
+  appointmentClient
+);
+
+const apolloServer = new ApolloServer({
+  typeDefs,
+  resolvers,
+});
+
+async function startApolloServer() {
+  await apolloServer.start();
+
+  app.use(
+    "/graphql",
+    cors(),
+    express.json(),
+    expressMiddleware(apolloServer)
+  );
+
+  console.log("GraphQL endpoint ready at http://localhost:3000/graphql");
+}
+
+startApolloServer();
 // Route de test
 app.get("/", (req, res) => {
   res.send("API Gateway is running");
