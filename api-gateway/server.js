@@ -12,7 +12,7 @@ app.use(express.json());
 // Charger le fichier patient.proto
 const PATIENT_PROTO_PATH = path.join(__dirname, "../protos/patient.proto");
 const DOCTOR_PROTO_PATH = path.join(__dirname, "../protos/doctor.proto");
-
+const APPOINTMENT_PROTO_PATH = path.join(__dirname, "../protos/appointment.proto");
 const patientPackageDefinition = protoLoader.loadSync(PATIENT_PROTO_PATH, {
   keepCase: true,
   longs: String,
@@ -27,8 +27,16 @@ const doctorPackageDefinition = protoLoader.loadSync(DOCTOR_PROTO_PATH, {
   defaults: true,
   oneofs: true,
 });
+const appointmentPackageDefinition = protoLoader.loadSync(APPOINTMENT_PROTO_PATH, {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true,
+});
 const patientProto = grpc.loadPackageDefinition(patientPackageDefinition).patient;
 const doctorProto = grpc.loadPackageDefinition(doctorPackageDefinition).doctor;
+const appointmentProto =grpc.loadPackageDefinition(appointmentPackageDefinition).appointment;
 // Créer le client gRPC vers Patient Service
 const patientClient = new patientProto.PatientService(
   "localhost:50051",
@@ -36,6 +44,10 @@ const patientClient = new patientProto.PatientService(
 );
 const doctorClient = new doctorProto.DoctorService(
   "localhost:50052",
+  grpc.credentials.createInsecure()
+);
+const appointmentClient = new appointmentProto.AppointmentService(
+  "localhost:50053",
   grpc.credentials.createInsecure()
 );
 // Route de test
@@ -198,6 +210,96 @@ app.delete("/api/doctors/:id", (req, res) => {
   const id = parseInt(req.params.id);
 
   doctorClient.DeleteDoctor({ id }, (err, response) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message,
+      });
+    }
+
+    res.json(response);
+  });
+});
+// CREATE APPOINTMENT
+app.post("/api/appointments", (req, res) => {
+  const { patient_id, doctor_id, date, time } = req.body;
+
+  appointmentClient.CreateAppointment(
+    { patient_id, doctor_id, date, time },
+    (err, response) => {
+      if (err) {
+        return res.status(500).json({
+          error: err.message,
+        });
+      }
+
+      res.status(201).json(response);
+    }
+  );
+});
+
+// GET ALL APPOINTMENTS
+app.get("/api/appointments", (req, res) => {
+  appointmentClient.GetAllAppointments({}, (err, response) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message,
+      });
+    }
+
+    res.json(response.appointments);
+  });
+});
+
+// GET APPOINTMENTS BY PATIENT
+app.get("/api/appointments/patient/:patient_id", (req, res) => {
+  const patient_id = parseInt(req.params.patient_id);
+
+  appointmentClient.GetAppointmentsByPatient({ patient_id }, (err, response) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message,
+      });
+    }
+
+    res.json(response.appointments);
+  });
+});
+
+// GET APPOINTMENTS BY DOCTOR
+app.get("/api/appointments/doctor/:doctor_id", (req, res) => {
+  const doctor_id = parseInt(req.params.doctor_id);
+
+  appointmentClient.GetAppointmentsByDoctor({ doctor_id }, (err, response) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message,
+      });
+    }
+
+    res.json(response.appointments);
+  });
+});
+
+// GET APPOINTMENT BY ID
+app.get("/api/appointments/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  appointmentClient.GetAppointment({ id }, (err, response) => {
+    if (err) {
+      return res.status(404).json({
+        error: err.message,
+      });
+    }
+
+    res.json(response);
+  });
+});
+
+// CANCEL APPOINTMENT
+app.put("/api/appointments/:id/cancel", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  appointmentClient.CancelAppointment({ id }, (err, response) => {
     if (err) {
       return res.status(500).json({
         error: err.message,
