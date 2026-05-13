@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package doctor;
+
+service DoctorService {
+  rpc CreateDoctor (CreateDoctorRequest) returns (DoctorResponse);
+  rpc GetDoctor (GetDoctorRequest) returns (DoctorResponse);
+  rpc GetAllDoctors (Empty) returns (DoctorList);
+  rpc UpdateDoctor (UpdateDoctorRequest) returns (DoctorResponse);
+  rpc DeleteDoctor (GetDoctorRequest) returns (DeleteResponse);
+  rpc SearchDoctorsBySpecialty (SearchDoctorsRequest) returns (DoctorList);
+}
+
+message Empty {}
+
+message CreateDoctorRequest {
+  string name = 1;
+  string specialty = 2;
+  string email = 3;
+  string phone = 4;
+}
+
+message GetDoctorRequest {
+  int32 id = 1;
+}
+
+message UpdateDoctorRequest {
+  int32 id = 1;
+  string name = 2;
+  string specialty = 3;
+  string email = 4;
+  string phone = 5;
+}
+
+message SearchDoctorsRequest {
+  string specialty = 1;
+}
+
+message DoctorResponse {
+  int32 id = 1;
+  string name = 2;
+  string specialty = 3;
+  string email = 4;
+  string phone = 5;
+}
+
+message DoctorList {
+  repeated DoctorResponse doctors = 1;
+}
+
+message DeleteResponse {
+  string message = 1;
+}
